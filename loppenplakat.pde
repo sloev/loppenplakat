@@ -310,18 +310,22 @@ void pdfupdate(int h) {
         //tegn rectangle til rubrik
         pdf.rect(2, y1, w-5, y-y1);
       }
+      //gem nuværende tegn i variabel
       last=current;
     }
   }
-
-  //_______
-
-  //_______
+  //nu skal der laves tekst, vi starter ved denne y pos
   y=60;
+  //sæt fill til tekst farve
   pdf.fill(a);
+  //loop igennem alle linjer
   for (int i=0;i<lines.length;i++) {
+    //gem linje i var
     String tmp=lines[i];
+    //er vi ved rubrik tegn
     boolean line=false;
+    //for følgende ser ovenfor loops
+    // [
     int size=0;
     float x=4;
     int newSize=0;
@@ -360,6 +364,8 @@ void pdfupdate(int h) {
         line=true;
       }
       pdf.textSize(sizes[size]);
+      // ]
+      //hvis ikke rubrik tegn så skriv tegn
       if (!line) {
         if (current!='<') {
           pdf.text(""+current, x, y);
@@ -372,33 +378,31 @@ void pdfupdate(int h) {
       last=current;
     }
   }
+  //for en sikkerheds skyld init fill
   pdf.noFill();
-
-  if (save) {
-  }
   pdf.endDraw();
 }
+//generer plakat knappen
 public void bang() {
   background(100);
   save=true;
   pdfupdate(calcPdfHeight(lines));
+  //gem pdf
   pdf.dispose();
+  //bryd ud af savemode
   save=false;
+  //husk at generer igen uden savemode så vi kan vise bitmap :-)
   pdfupdate(calcPdfHeight(lines));
 }
-
-void mousePressed() {
-}
-
-
+//hvis tekst ændres så opdateres plakat også
 public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
   //println("\n______"+millis()+"\n"+txaSample.getText());
+  //få tekst fra textarea
   String lol=txaSample.getText();
+  //lav tekst til et string array
   lines=split(lol, "\n");
+  //sæt baggrund bag plakat 
   background(100);
   pdfupdate(calcPdfHeight(lines));
-}
-
-public void controlEvent(ControlEvent ce) {
 }
 
