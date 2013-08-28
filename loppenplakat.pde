@@ -13,16 +13,23 @@ PGraphics pdf;
 String[] lines= {
   "", ""
 };
+PShape loppen;
+
 int datecounter=0;
 
 
-PFont arial, loppen, christiania;
+PFont arial, loppen2, christiania;
 
 GTextArea txaSample;
 Textlabel myTextlabelB;
 
+/*
 int sizes[] = {
   1, 8, 10, 14, 19
+};
+*/
+int sizes[] = {
+  1,4, 8,10, 12, 14,16,18, 19,21
 };
 
 int space=2;
@@ -31,6 +38,8 @@ boolean save=false;
 
 int pdfwidth=300;
 void setup() {
+  loppen = loadShape("loppen.svg");
+
 
   size(620, 800);
   //  frameRate(24);
@@ -187,6 +196,7 @@ void pdfupdate(int h) {
   pdf.textFont(createFont("Arial-Black", 32), 32);
   //hvis save er teskten en vector ellers en bitmap
   if (save) {  
+
     pdf.textMode(SHAPE);
   }
   else {
@@ -224,6 +234,7 @@ void pdfupdate(int h) {
   pdf.textSize(37);
   //skriv loppen
   pdf.text("LOPPEN", 59, 32);
+
   //sæt tekst størrelse til footer og skriv footer
   // [
   pdf.textSize(9.20);
@@ -378,6 +389,11 @@ void pdfupdate(int h) {
       last=current;
     }
   }
+    //if (save) {  
+      loppen.disableStyle();
+      fill(a);
+    pdf.shape(loppen, 5, 5,43,43);            // Draw at coordinate (280, 40) at the default size
+  //}
   //for en sikkerheds skyld init fill
   pdf.noFill();
   pdf.endDraw();
@@ -404,5 +420,7 @@ public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
   //sæt baggrund bag plakat 
   background(100);
   pdfupdate(calcPdfHeight(lines));
+}
+void drawloppen() {
 }
 
