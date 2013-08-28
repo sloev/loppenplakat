@@ -11,13 +11,13 @@ PGraphics pdf;
 String[] lines;
 
 
-PFont arial,loppen,christiania;
+PFont arial, loppen, christiania;
 
 GTextArea txaSample;
 Textlabel myTextlabelB;
 
 int sizes[] = {
-  1, 8, 10, 19, 26
+  1, 8, 10, 14, 19
 };
 
 int space=2;
@@ -30,7 +30,7 @@ void setup() {
   c=b=a;
   size(620, 800);
   frameRate(24);
-  
+
   arial=loadFont("arial.vlw");
 
   lines = loadStrings("text.txt");
@@ -112,25 +112,27 @@ int calcPdfHeight(String [] lulz) {
     else if (tmp.indexOf("<")!=-1) {//h3 (anden mindst)
       returner+=sizes[1];
     }
-    // returner+=space*2;
+    //  returner+=2;
   }
+  returner+=30;
   return returner;
 }
 
 void pdfupdate(int h) {
+  int w=230;
   a=cp1.getColorValue();
   b=cp2.getColorValue();
   c=cp3.getColorValue();
   if (save) {
-    pdf = createGraphics(300, h, PDF, "output.pdf");
+    pdf = createGraphics(w, h, PDF, "output.pdf");
   }
   else {
-    pdf = createGraphics(300, h);
+    pdf = createGraphics(w, h);
   }
-  int y=54;
+  int y=58;
   pdf.beginDraw();
   pdf.background(0);
-  pdf.textFont(createFont("Arial-Black", 32),32);
+  pdf.textFont(createFont("Arial-Black", 32), 32);
 
   if (save) {  
     pdf.textMode(SHAPE);
@@ -144,11 +146,30 @@ void pdfupdate(int h) {
 
   pdf.fill(b);
   pdf.stroke(a);
-  pdf.rect(1, 2, 50, 50);
-  pdf.rect(57, 2, 297-56, 50);
+  pdf.rect(1, 1, 50, 50);
+  pdf.rect(57, 1, w-59, 50);
+  pdf.strokeWeight(1);
+
+  pdf.rect(1, h-30, w-2, 50);
+  pdf.strokeWeight(3);
+
   pdf.noFill();
-  pdf.rect(1, 58, 297, h-60);
+  pdf.rect(1, 57, w-3, h-58);
+
   //________
+  pdf.fill(a);
+
+  pdf.textSize(37);
+  pdf.text("LOPPEN", 59, 32);
+
+  pdf.textSize(9.48);
+  pdf.text("FORSALG: WWW.BILLETLUGEN.DK & FONA", 5, h-21);
+  pdf.textSize(7.1);
+  pdf.text("KONCERTEN STARTER EN TIME EFTER DØRENE ÅBNES!", 4, h-13);
+   pdf.textSize(10.7);
+  pdf.text("RET TIL ÆNDRINGER FORBEHOLDES", 5, h-3);
+  //________
+  pdf.strokeWeight(1);
   int x1=0;
   int y1=0;
 
@@ -195,7 +216,7 @@ void pdfupdate(int h) {
       }
       else if (current==']') {
         pdf.fill(b);
-        pdf.rect(0, y1, 298, y-y1);
+        pdf.rect(2, y1, w-5, y-y1);
       }
       pdf.textSize(sizes[size]);
       if (!line) {
@@ -209,7 +230,9 @@ void pdfupdate(int h) {
   }
 
   //_______
-  y=56;
+
+  //_______
+  y=60;
   pdf.fill(a);
   for (int i=0;i<lines.length;i++) {
     String tmp=lines[i];
@@ -263,26 +286,6 @@ void pdfupdate(int h) {
       }
       last=current;
     }
-    /*
-    int size=0;
-     if (tmp.indexOf("[[[")!=-1) {//h1 (størst)
-     size=size4;
-     }
-     else if (tmp.indexOf("[[")!=-1) {//h2
-     size=size3;
-     }
-     else if (tmp.indexOf("[")!=-1) {//h3 (anden mindst)
-     size=size2;
-     }
-     else if (tmp.indexOf("@")!=-1) {//linje
-     line=true;
-     size=space;
-     }
-     else {//normal størrelse
-     size+=size1;
-     }
-     y+=size+space;
-     */
   }
   pdf.noFill();
 
