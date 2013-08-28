@@ -25,11 +25,11 @@ Textlabel myTextlabelB;
 
 /*
 int sizes[] = {
-  1, 8, 10, 14, 19
-};
-*/
+ 1, 8, 10, 14, 19
+ };
+ */
 int sizes[] = {
-  1,4, 8,10, 12, 14,16,18, 19,21
+  1, 4, 8, 10, 12, 14, 16, 18, 19, 21
 };
 
 int space=2;
@@ -144,7 +144,22 @@ int calcPdfHeight(String [] lulz) {
     //nuværende tekstlinje
     String tmp=lines[i];
     //der tjekkes hvad den største skrifttype i nuværende linje er
-    if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
+    if (tmp.indexOf("<<<<<<<<<")!=-1) {//h1 (størst)
+      returner+=sizes[9];
+    }
+    else if (tmp.indexOf("<<<<<<<<")!=-1) {//h1 (størst)
+      returner+=sizes[8];
+    }
+    else if (tmp.indexOf("<<<<<<<")!=-1) {//h1 (størst)
+      returner+=sizes[7];
+    }
+    else if (tmp.indexOf("<<<<<<")!=-1) {//h1 (størst)
+      returner+=sizes[6];
+    }
+    else if (tmp.indexOf("<<<<<")!=-1) {//h1 (størst)
+      returner+=sizes[5];
+    }
+    else if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
       returner+=sizes[4];
     }
     else if (tmp.indexOf("<<<")!=-1) {//h2
@@ -266,7 +281,22 @@ void pdfupdate(int h) {
     char last=' ';
     //tmp linje højde
     int tmpspace=0;
-    if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
+    if (tmp.indexOf("<<<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[9];
+    }
+    else if (tmp.indexOf("<<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[8];
+    }
+    else if (tmp.indexOf("<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[7];
+    }
+    else if (tmp.indexOf("<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[6];
+    }
+    else if (tmp.indexOf("<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[5];
+    }
+    else if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
       tmpspace+=sizes[4];
     }
     else if (tmp.indexOf("<<<")!=-1) {//h2
@@ -342,7 +372,22 @@ void pdfupdate(int h) {
     int newSize=0;
     char last=' ';
     int tmpspace=0;
-    if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
+    if (tmp.indexOf("<<<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[9];
+    }
+    else if (tmp.indexOf("<<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[8];
+    }
+    else if (tmp.indexOf("<<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[7];
+    }
+    else if (tmp.indexOf("<<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[6];
+    }
+    else if (tmp.indexOf("<<<<<")!=-1) {//h1 (størst)
+      tmpspace+=sizes[5];
+    }
+    else if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
       tmpspace+=sizes[4];
     }
     else if (tmp.indexOf("<<<")!=-1) {//h2
@@ -367,7 +412,7 @@ void pdfupdate(int h) {
       }
       else if (current=='<') {
         newSize+=1;
-        if (newSize>4) {
+        if (newSize>9) {
           newSize=4;
         }
       }
@@ -389,10 +434,10 @@ void pdfupdate(int h) {
       last=current;
     }
   }
-    //if (save) {  
-      loppen.disableStyle();
-      fill(a);
-    pdf.shape(loppen, 5, 5,43,43);            // Draw at coordinate (280, 40) at the default size
+  //if (save) {  
+  loppen.disableStyle();
+  fill(a);
+  pdf.shape(loppen, 5, 5, 43, 43);            // Draw at coordinate (280, 40) at the default size
   //}
   //for en sikkerheds skyld init fill
   pdf.noFill();
