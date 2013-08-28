@@ -163,70 +163,97 @@ int calcPdfHeight(String [] lulz) {
 void pdfupdate(int h) {
   //bredde på plakat er ikke sammenhængende med skriftstørrelser
   int w=230;
-//flip til at vælge baggrundsfarve
+  //flip til at vælge baggrundsfarve
   boolean alternatebackground=false;
   //hvis der er ulige antal rubrikker skal vi starte med hvid baggrund
   if (datecounter%2==0) {
     alternatebackground=true;
   }
+  //hvis save mode skal det være en pdf
   if (save) {
     pdf = createGraphics(w, h, PDF, "output.pdf");
   }
+  //hvis ikke save mode skal det være en bitmap til visning i gui
   else {
     pdf = createGraphics(w, h);
   }
+  //sted hvor header er færdig
   int y=58;
-  boolean first=true;
+  //start framebuffer object tegning af plakat
   pdf.beginDraw();
+  //sæt baggrund
   pdf.background(0);
+  //lav skrifttype ARIAL black
   pdf.textFont(createFont("Arial-Black", 32), 32);
-
+  //hvis save er teskten en vector ellers en bitmap
   if (save) {  
     pdf.textMode(SHAPE);
   }
   else {
     pdf.textMode(MODEL);
   }
+  //sæt tykkelsen på rammer
   pdf.strokeWeight(3);
+  //sæt farven på baggrund
   pdf.fill(c);
+  //tegn baggrund
   pdf.rect(-5, -5, 305, h+5);
-
+  //sæt baggrund til to header rammer
   pdf.fill(b);
+  //sæt ramme farve til to header rammer og generel ramme
   pdf.stroke(a);
+  //tegn lille firkant til loppe logo
   pdf.rect(1, 1, 50, 50);
+  //tegn loppe ramme
   pdf.rect(57, 1, w-59, 50);
+  //sæt ramme tykkelse til footer
   pdf.strokeWeight(1);
-
+  //tegn footer ramme
   pdf.rect(1, h-30, w-2, 50);
+  //sæt ramme tykkelse til stor ramme
   pdf.strokeWeight(3);
-
+  //ingen baggrund
   pdf.noFill();
+  //stor program ramme
   pdf.rect(1, 57, w-3, h-58);
 
   //________
+  //sæt fill til tekst i header
   pdf.fill(a);
-
+  //sæt tekststørrelse til loppen
   pdf.textSize(37);
+  //skriv loppen
   pdf.text("LOPPEN", 59, 32);
-
+  //sæt tekst størrelse til footer og skriv footer
+  // [
   pdf.textSize(9.20);
   pdf.text("FORSALG: WWW.BILLETLUGEN.DK & FONA", 5, h-21);
   pdf.textSize(7.1);
   pdf.text("KONCERTEN STARTER EN TIME EFTER DØRENE ÅBNES!", 4, h-13);
   pdf.textSize(10.7);
   pdf.text("RET TIL ÆNDRINGER FORBEHOLDES", 5, h-3);
-  //________
-  pdf.strokeWeight(1);
-  int x1=0;
-  int y1=0;
+  // ]
 
+  //sæt ramme tykkelse til rubrikker 
+
+  pdf.strokeWeight(1);
+  //sæt start y punkt
+  int y1=0;
+  //loop igennem alle linjer i tekst
   for (int i=0;i<lines.length;i++) {
+    //fetch nuværende linje
     String tmp=lines[i];
+    //hvis det bare er en rubrikslinje
     boolean line=false;
+    //sæt størrelse på linje stykke (maks højde)
     int size=0;
+    //indryk til tekst og variable til hvor på linjen du er
     float x=4;
+
     int newSize=0;
+    //variable til at tjekke om du er færdig med at indstille tekst størrelse
     char last=' ';
+    //tmp linje højde
     int tmpspace=0;
     if (tmp.indexOf("<<<<")!=-1) {//h1 (størst)
       tmpspace+=sizes[4];
@@ -243,29 +270,36 @@ void pdfupdate(int h) {
     else if (tmp.indexOf("<")!=-1) {//h3 (anden mindst)
       tmpspace+=sizes[1];
     }
+    //tmp linjehøjde ligges til y position
     y+=tmpspace;
-
+    //looper igennem alle tegn på linje
     for (int k=0;k<tmp.length();k++) {
+      //nuværende tegn
       char current=tmp.charAt(k);
+      //hvis ikke nuværende tegn er lig med sidste tegn og sidste tegn var < betyder det at skriftstørrelse er ændret
       if (current!=last && last=='<') {
         size=newSize;
         newSize=0;
       }
+      //hvis nuværende tegn er skrift størrelse ændring, ændres skriftstørrelse
       else if (current=='<') {
         newSize+=1;
         if (newSize>4) {
           newSize=4;
         }
       }
+      //hvis der er rubrik tegn gemmes y position til senere rectangle skabelse
       else if (current=='[') {
-        first=false;
         y1=y;
         line=true;
       }
+      //hvis nuværende er rubrikslut tegn skabes der en rectangle
       else if (current==']') {
+        //check om der skal være alternate baggrundsfarve
         if (alternatebackground) {
+          //flip boolean
           alternatebackground=false;
-
+          //ny fill farve
           pdf.fill(b);
         }
         else {
@@ -273,14 +307,8 @@ void pdfupdate(int h) {
 
           pdf.fill(c);
         }
+        //tegn rectangle til rubrik
         pdf.rect(2, y1, w-5, y-y1);
-      }
-      pdf.textSize(sizes[size]);
-      if (!line) {
-        if (current!='<') {
-          // pdf.text(""+current, x, y);
-          x+=pdf.textWidth(current);
-        }
       }
       last=current;
     }
@@ -328,7 +356,7 @@ void pdfupdate(int h) {
           newSize=4;
         }
       }
-      else if (current=='@') {
+      else if (current=='[' || current==']') {
         line=true;
       }
       pdf.textSize(sizes[size]);
