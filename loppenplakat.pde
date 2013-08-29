@@ -283,9 +283,12 @@ void pdfupdate(int h) {
   //sæt fill til tekst i header
   pdf.fill(a);
   //sæt tekststørrelse til loppen
-  pdf.textSize(37);
+  pdf.textSize(36);
+  pdf.textAlign(CENTER);
   //skriv loppen
-  pdf.text("LOPPEN", 59, 32);
+  pdf.text("LOPPEN", 142, 33);
+    pdf.textAlign(LEFT);
+
 
   //sæt tekst størrelse til footer og skriv footer
   // [
@@ -485,7 +488,7 @@ void pdfupdate(int h) {
   //if (save) {  
   loppen.disableStyle();
   fill(a);
-  pdf.shape(loppen, 5, 5, 43, 43);            // Draw at coordinate (280, 40) at the default size
+  pdf.shape(loppen, 9, 5, 36, 41);            // Draw at coordinate (280, 40) at the default size
   //}
   //for en sikkerheds skyld init fill
   pdf.noFill();
