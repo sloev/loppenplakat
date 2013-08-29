@@ -1,6 +1,10 @@
 import g4p_controls.*;
 import controlP5.*;
 import processing.pdf.*;
+import sojamo.drop.*;
+
+SDrop drop;
+MyDropListener m;
 
 ControlP5 cp5;
 ColorPicker cp1, cp2, cp3;
@@ -14,6 +18,10 @@ String[] lines= {
   "", ""
 };
 PShape loppen;
+
+boolean loading=false;
+
+
 
 int datecounter=0;
 
@@ -29,7 +37,7 @@ int sizes[] = {
  };
  */
 int sizes[] = {
-  1, 4, 8, 10, 12, 14, 16, 18, 19, 21
+  1, 6, 8, 10, 12, 14, 16, 18, 19, 21
 };
 
 int space=2;
@@ -41,7 +49,12 @@ void setup() {
   loppen = loadShape("loppen.svg");
 
 
-  size(620, 800);
+  size(930, 510);
+
+  drop = new SDrop(this);
+  m = new MyDropListener();
+  drop.addDropListener(m);
+
   //  frameRate(24);
 
   arial=loadFont("arial.vlw");
@@ -56,48 +69,71 @@ void setup() {
 
   //text labels
   myTextlabelB = cp5.addTextlabel("label1")
-    .setText("FARVE A:")
-      .setPosition(5, 505)
-        .setColor(0x00000000)
+    .setText("TEXT OG RAMMER:")
+      .setPosition(305, 10)
+        .setColor(0XFFFFFFFF)
           .setFont(createFont("Georgia", 15))
             ;
 
   myTextlabelB = cp5.addTextlabel("label2")
-    .setText("FARVE B:")
-      .setPosition(5, 590)
-        .setColorValue(0x00000000)
+    .setText("RUBRIK FARVE:")
+      .setPosition(310, 100)
+        .setColorValue(0XFFFFFFFF)
           .setFont(createFont("Georgia", 15))
             ;
 
   myTextlabelB = cp5.addTextlabel("label3")
-    .setText("FARVE C:")
-      .setPosition(5, 670)
-        .setColorValue(0x00000000)
+    .setText("BAGGRUND:")
+      .setPosition(310, 190)
+        .setColorValue(0XFFFFFFFF)
           .setFont(createFont("Georgia", 15))
             ;
 
   //color pickers initialiseres til rød text/ramme gulalternate background og hvid background
   cp1 = cp5.addColorPicker("picker1")
-    .setPosition(5, 530)
+    .setPosition(310, 30)
       .setColorValue(color(255, 0, 0, 255))
         ;
 
   cp2 = cp5.addColorPicker("picker2")
-    .setPosition(5, 610)
+    .setPosition(310, 120)
       .setColorValue(color(255, 221, 0, 255))
         ;
 
   cp3 = cp5.addColorPicker("picker3")
-    .setPosition(5, 690)
+    .setPosition(310, 210)
       .setColorValue(color(255, 255, 255, 255))
         ;
   //generer pdf knap
   cp5.addBang("bang")
-    .setPosition(5, 760)
+    .setPosition(530, 280)
       .setSize(30, 30)
         .setTriggerEvent(Bang.PRESSED)
-          .setLabel("generate poster")
+          .setLabel("GENERER PLAKAT")
             ;
+  cp5.addTextfield("plakatnavn")
+    .setPosition(310, 280)
+      .setSize(210, 30)
+        .setFont(createFont("arial", 20))
+          .setAutoClear(false)
+            ;
+
+  //generer pdf knap
+  cp5.addBang("gem")
+    .setPosition(530, 340)
+      .setSize(30, 30)
+        .setTriggerEvent(Bang.PRESSED)
+          .setLabel("GEM TEKST")
+            ;
+
+  cp5.addTextfield("FILNAVN")
+    .setPosition(310, 340)
+      .setSize(210, 30)
+        .setFont(createFont("arial", 20))
+          .setAutoClear(false)
+            ;
+
+
   //farve variable init til colorpickers værdier
   olda=a=cp1.getColorValue();
   oldb=b=cp2.getColorValue();
@@ -112,9 +148,9 @@ void draw() {
   //baggrund sættes for gui område
   noStroke();
   fill(100);
-  rect(0, 0, 310, height);
+  rect(0, 0, 620, height);
   //hvis der ikke er save mode (generer knap trykket ned) så bliver et billede af plakat vist og skaleret
-  if (!save) {
+  if (!save && !loading) {
     PImage img=pdf;
     if (img.height>height-10) {
       img.resize(0, height-20);
@@ -132,6 +168,7 @@ void draw() {
     oldb=b;
     oldc=c;
   }
+  m.draw();
 }
 //funktion der regner højden på plakaten ud
 int calcPdfHeight(String [] lulz) {
@@ -195,7 +232,7 @@ void pdfupdate(int h) {
   }
   //hvis save mode skal det være en pdf
   if (save) {
-    pdf = createGraphics(w, h, PDF, "output.pdf");
+    pdf = createGraphics(w, h, PDF, sketchPath+"/gemte/"+cp5.get(Textfield.class, "plakatnavn").getText()+".pdf");
   }
   //hvis ikke save mode skal det være en bitmap til visning i gui
   else {
@@ -310,7 +347,7 @@ void pdfupdate(int h) {
     }
     else if (tmp.indexOf("<")!=-1) {//h3 (anden mindst)
       tmpspace+=sizes[1];
-    }
+    }    
     //tmp linjehøjde ligges til y position
     y+=tmpspace;
     //looper igennem alle tegn på linje
@@ -402,6 +439,7 @@ void pdfupdate(int h) {
     else if (tmp.indexOf("<")!=-1) {//h3 (anden mindst)
       tmpspace+=sizes[1];
     }
+
     y+=tmpspace;
 
     for (int k=0;k<tmp.length();k++) {
@@ -423,9 +461,19 @@ void pdfupdate(int h) {
       // ]
       //hvis ikke rubrik tegn så skriv tegn
       if (!line) {
+
         if (current!='<') {
-          pdf.text(""+current, x, y);
-          x+=pdf.textWidth(current);
+          if (current=='@') {
+            String tmpstr= tmp.substring(k+1);
+            pdf.textAlign(RIGHT);
+            pdf.text(tmpstr, w-5, y);
+            pdf.textAlign(LEFT);
+            break;
+          }
+          else {
+            pdf.text(""+current, x, y);
+            x+=pdf.textWidth(current);
+          }
         }
       }
       else {
@@ -455,6 +503,9 @@ public void bang() {
   //husk at generer igen uden savemode så vi kan vise bitmap :-)
   pdfupdate(calcPdfHeight(lines));
 }
+public void gem() {
+  saveStrings(sketchPath+"/gemte/"+cp5.get(Textfield.class, "FILNAVN").getText()+".txt", lines);
+}
 //hvis tekst ændres så opdateres plakat også
 public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
   //println("\n______"+millis()+"\n"+txaSample.getText());
@@ -466,6 +517,49 @@ public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
   background(100);
   pdfupdate(calcPdfHeight(lines));
 }
-void drawloppen() {
+
+// a custom DropListener class.
+class MyDropListener extends DropListener {
+
+  int myColor;
+
+  MyDropListener() {
+    myColor = color(255);
+    // set a target rect for drop event.
+    setTargetRect(310, 400, 260, 100);
+  }
+
+  void draw() {
+    fill(myColor);
+    rect(310, 400, 260, 100);
+    fill(0);
+    text("drop text file here", 390, 450);
+  }
+
+  // if a dragged object enters the target area.
+  // dropEnter is called.
+  void dropEnter() {
+    myColor = color(255, 0, 0);
+  }
+
+  // if a dragged object leaves the target area.
+  // dropLeave is called.
+  void dropLeave() {
+    myColor = color(255);
+  }
+
+  void dropEvent(DropEvent theEvent) {
+    println("isFile()\t"+theEvent.isFile());
+    String tmp=theEvent.file().toString();
+    if (tmp.substring(tmp.length()-4).equals(".txt")) {
+      loading=true;
+      lines = loadStrings(tmp);
+      txaSample.setText(PApplet.join(lines, '\n'), 250);
+      pdfupdate(calcPdfHeight(lines));
+      loading=false;
+    }
+
+    println("Dropped on MyDropListener");
+  }
 }
 
