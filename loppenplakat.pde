@@ -558,6 +558,7 @@ class MyDropListener extends DropListener {
       loading=true;
       lines = loadStrings(tmp);
       txaSample.setText(PApplet.join(lines, '\n'), 250);
+      background(100);
       pdfupdate(calcPdfHeight(lines));
       loading=false;
     }
