@@ -13,6 +13,8 @@ ColorPicker cp1, cp2, cp3;
 color a, b, c;
 color olda, oldb, oldc;
 
+boolean locked=false;
+
 PGraphics pdf;
 String[] lines= {
   "", ""
@@ -30,6 +32,7 @@ PFont arial, loppen2, christiania;
 
 GTextArea txaSample;
 Textlabel myTextlabelB;
+Textlabel myConsole;
 
 /*
 int sizes[] = {
@@ -133,7 +136,12 @@ void setup() {
           .setAutoClear(false)
             ;
 
-
+  myConsole = cp5.addTextlabel("console")
+    .setText("Message:")
+      .setPosition(305, 385)
+        .setColorValue(0XFFFFFFFF)
+          .setFont(createFont("Georgia", 10))
+            ;
   //farve variable init til colorpickers værdier
   olda=a=cp1.getColorValue();
   oldb=b=cp2.getColorValue();
@@ -222,6 +230,7 @@ int calcPdfHeight(String [] lulz) {
 }
 //funktion der opdaterer og tegner plakat i framebuffer
 void pdfupdate(int h) {
+  locked=true;
   //bredde på plakat er ikke sammenhængende med skriftstørrelser
   int w=230;
   //flip til at vælge baggrundsfarve
@@ -232,7 +241,7 @@ void pdfupdate(int h) {
   }
   //hvis save mode skal det være en pdf
   if (save) {
-    pdf = createGraphics(w, h, PDF, sketchPath+"/gemte/"+cp5.get(Textfield.class, "plakatnavn").getText()+".pdf");
+    pdf = createGraphics(w, h, PDF, sketchPath+"/loppenPlakatGenerator/"+cp5.get(Textfield.class, "plakatnavn").getText()+".pdf");
   }
   //hvis ikke save mode skal det være en bitmap til visning i gui
   else {
@@ -493,6 +502,7 @@ void pdfupdate(int h) {
   //for en sikkerheds skyld init fill
   pdf.noFill();
   pdf.endDraw();
+  locked=false;
 }
 //generer plakat knappen
 public void bang() {
@@ -501,13 +511,18 @@ public void bang() {
   pdfupdate(calcPdfHeight(lines));
   //gem pdf
   pdf.dispose();
+  String filnavn =sketchPath+"/loppenPlakatGenerator/"+cp5.get(Textfield.class, "plakatnavn").getText()+".pdf";
+  myConsole.setText("Saved: "+filnavn);
   //bryd ud af savemode
   save=false;
   //husk at generer igen uden savemode så vi kan vise bitmap :-)
   pdfupdate(calcPdfHeight(lines));
 }
 public void gem() {
-  saveStrings(sketchPath+"/gemte/"+cp5.get(Textfield.class, "FILNAVN").getText()+".txt", lines);
+  String colorString="color:"+hex(a)+","+hex(b)+","+hex(c);
+  String filnavn=sketchPath+"/loppenPlakatGenerator/"+cp5.get(Textfield.class, "FILNAVN").getText()+".txt";
+  saveStrings(filnavn, splice(lines,colorString,0));
+  myConsole.setText("Saved: "+filnavn);
 }
 //hvis tekst ændres så opdateres plakat også
 public void handleTextEvents(GEditableTextControl textarea, GEvent event) {
@@ -552,11 +567,24 @@ class MyDropListener extends DropListener {
   }
 
   void dropEvent(DropEvent theEvent) {
+    if(!locked){
     println("isFile()\t"+theEvent.isFile());
     String tmp=theEvent.file().toString();
     if (tmp.substring(tmp.length()-4).equals(".txt")) {
       loading=true;
       lines = loadStrings(tmp);
+      String [] m=match(lines[0],"color:");
+      if(m!=null){
+        String indexLine=lines[0].substring(6);
+        println(indexLine);
+        String [] colors=split(indexLine,",");
+        if(colors.length==3){
+         cp1.setColorValue(unhex(colors[0]));
+         cp2.setColorValue(unhex(colors[1]));
+         cp3.setColorValue(unhex(colors[2]));
+        }
+        lines=subset(lines,1);
+      }
       txaSample.setText(PApplet.join(lines, '\n'), 250);
       background(100);
       pdfupdate(calcPdfHeight(lines));
@@ -564,6 +592,11 @@ class MyDropListener extends DropListener {
     }
 
     println("Dropped on MyDropListener");
+  }  else{
+        println("fail");
+
   }
+  }
+
 }
 
